@@ -10,4 +10,5 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('search/', views.search_notes, name='search_notes'),  # AJAX search
+    path("notes/auto-save/", views.auto_save_note, name="auto_save_note"), # AJAX for autosave in the edit
 ]
