@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Note
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -51,6 +52,23 @@ def edit_note(request, note_id):
         note.save()
 
     return render(request, 'notes/edit_note.html', {'note': note})
+
+def auto_save_note(request):
+    if request.method == "POST":
+        note_id = request.POST.get("note_id")
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+
+        try:
+            note = Note.objects.get(id=note_id, user=request.user)
+            note.title = title
+            note.content = content
+            note.save()
+            return JsonResponse({"status": "success"})
+        except Note.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Note not found"})
+    
+    return JsonResponse({"status": "error", "message": "Invalid request"})
 
 def signup_view(request):
     if request.method == "POST":

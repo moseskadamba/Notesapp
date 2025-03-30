@@ -10,33 +10,77 @@
     <div class="container mt-5">
         <h1 class="text-center">✏️ Edit Note</h1>
         <div class="card p-4 mt-3">
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Title</label>
-                    <input type="text" name="title" class="form-control" value="{{ note.title }}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Content</label>
-                    <textarea name="content" class="form-control" rows="5" required>{{ note.content }}</textarea>
-                </div>
-                <button type="submit" class="btn btn-success">💾 Save Changes</button>
-                <a href="{% url 'home' %}" class="btn btn-secondary">Dashboard</a>
-                <!-- File input field to select audio file -->
-                <input type="file" id="audioFile" accept="audio/*" onchange="playAudio()">
-                <br>
+            <div class="container mt-4">
+                <h2>✏️ Edit Note</h2>
+            
+                <form id="edit-note-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="note-id" value="{{ note.id }}">
+            
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" id="title" name="title" class="form-control" value="{{ note.title }}">
+                    </div>
+            
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content</label>
+                        <textarea id="content" name="content" class="form-control" rows="5">{{ note.content }}</textarea>
+                    </div>
+            
+                    <!-- Auto-Save Message -->
+                    <div id="autosave-message" class="text-success" style="display: none;">✅ Saved</div>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">Dashboard</a>
 
-                <!-- Audio element for playback with control panel -->
-                <audio id="audioPlayer" controls> Your browser does not support the audio element. </audio>
-                <br>
+                    <!-- File input field to select audio file -->
+                    <input type="file" id="audioFile" accept="audio/*" onchange="playAudio()">
+                    <br>
 
-                <!-- Rewind button -->
-                <button onclick="rewindAudio()">Rewind</button>
-                <br>
-                <br>
-            </form>
+                    <!-- Audio element for playback with control panel -->
+                    <audio id="audioPlayer" controls> Your browser does not support the audio element. </audio>
+                    <br>
+
+                    <!-- Rewind button -->
+                    <button onclick="rewindAudio()">Rewind</button>
+                    <br>
+                    <br>
+                </form>
         </div>
     </div>
+    <!-- ✅ AJAX for Auto-Save -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let timeout = null;
+
+            $("#title, #content").on("input", function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    saveNote();
+                }, 1000);  // Save after 1 second of inactivity
+            });
+
+            function saveNote() {
+                let noteId = $("#note-id").val();
+                let title = $("#title").val();
+                let content = $("#content").val();
+                let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+                $.ajax({
+                    url: "/notes/auto-save/",
+                    method: "POST",
+                    data: {
+                        note_id: noteId,
+                        title: title,
+                        content: content,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                    success: function (response) {
+                        $("#autosave-message").fadeIn().delay(1000).fadeOut();  // Show "Saved" message
+                    }
+                });
+            }
+        });
+    </script>
     <script>
         // Function to play audio
         function playAudio() {
