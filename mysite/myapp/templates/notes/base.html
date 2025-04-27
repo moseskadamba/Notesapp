@@ -15,6 +15,26 @@
         .navbar {
             margin-bottom: 20px;
         }
+
+        /* ✅ Custom CSS Animation for Fade-In and Fade-Out */
+        .fade-in-out {
+            animation: fadeInOut 4s ease forwards; /* Total duration: 4 seconds */
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0; /* Start invisible */
+            }
+            10% {
+                opacity: 1; /* Fully visible after 10% of the animation (0.4s) */
+            }
+            90% {
+                opacity: 1; /* Stay visible until 90% of the animation (3.6s) */
+            }
+            100% {
+                opacity: 0; /* Fade out completely at the end */
+            }
+        }
     </style>
 </head>
 <body>
@@ -50,11 +70,11 @@
         </div>
     </nav>
 
-    <!-- ✅ Flash Messages (Auto-dismiss in 2 seconds) -->
+    <!-- ✅ Flash Messages (Auto-dismiss using CSS Animation) -->
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert {{ message.tags }} alert-dismissible fade show fade-in-out" role="alert">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -65,20 +85,7 @@
         {% endblock %}
     </div>
 
-    <!-- ✅ Bootstrap JS & jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- ✅ Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- ✅ Auto-hide success messages after 2 seconds -->
-    <script>
-        $(document).ready(function () {
-            setTimeout(function () {
-                $(".alert-success").fadeOut("slow", function () {
-                    $(this).remove(); // Ensures it's completely removed
-                });
-            }, 2000);  // 2 seconds
-        });
-    </script>
-
 </body>
 </html>
