@@ -5,8 +5,12 @@ from .models import Note
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.conf import settings
 
 # Create your views here.
+
+def dashboard(request):
+    return render(request, "notes/dashboard.html", {'MEDIA_URL': settings.MEDIA_URL})
 
 @login_required
 def search_notes(request):
