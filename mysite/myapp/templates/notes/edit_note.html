@@ -2,10 +2,14 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center">✏️ Edit Note</h1>
     <div class="card p-4 mt-3">
         <div class="container mt-4">
-            <h2>✏️ Edit Note</h2>
+            <form id="search-replace-form" class="d-flex mb-2">
+
+                <input type="text" id="search" class="form-control me-2" placeholder="Text">
+                <input type="text" id="replace" class="form-control me-2" placeholder="Replace text">
+                <button type="button" id="replace-btn" class="btn btn-primary">Replace All</button>
+            </form>
         
             <form id="edit-note-form">
                 {% csrf_token %}
@@ -17,8 +21,8 @@
                 </div>
         
                 <div class="mb-3">
-                    <label for="content" class="form-label">Content</label>
-                    <textarea id="content" name="content" class="form-control" rows="5">{{ note.content }}</textarea>
+                    <label for="content" class="form-label ">Content</label>
+                    <textarea id="content" name="content" class="form-control modal-title" rows="22">{{ note.content }}</textarea>
                 </div>
         
                 <!-- Auto-Save Message -->
@@ -120,5 +124,59 @@
             rewindAudio();
         }
     });
-    </script>
+</script>
+
+<!-- Script for search and replace -->
+<script>
+    $(document).ready(function () {
+        let timeout = null;
+
+        // Autosave on input with delay
+        $("#title, #content").on("input", function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                saveNote();
+            }, 1000);
+        });
+
+        // Replace All button handler
+        $("#replace-btn").on("click", function () {
+            const search = $("#search").val();
+            const replace = $("#replace").val();
+
+            if (!search) {
+                alert("Please enter a search term.");
+                return;
+            }
+
+            const content = $("#content").val();
+            const newContent = content.split(search).join(replace);
+
+            $("#content").val(newContent);
+            $("#content").trigger("input"); // Trigger autosave
+        });
+
+        function saveNote() {
+            let noteId = $("#note-id").val();
+            let title = $("#title").val();
+            let content = $("#content").val();
+            let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: "/notes/auto-save/",
+                method: "POST",
+                data: {
+                    note_id: noteId,
+                    title: title,
+                    content: content,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function (response) {
+                    $("#autosave-message").fadeIn().delay(1000).fadeOut(); // Show "Saved" message
+                }
+            });
+        }
+    });
+</script>
+
 {% endblock %}
